@@ -24,10 +24,7 @@ import tqdm
 import trimesh
 
 os.environ['PYOPENGL_PLATFORM'] = 'osmesa'
-# pylint: disable=g-import-not-at-top,g-bad-import-order
 import pyrender
-
-# pylint: enable=g-import-not-at-top,g-bad-import-order
 
 # Light direction for shading, in camera-space.
 
