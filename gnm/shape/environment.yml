@@ -9,6 +9,7 @@ dependencies:
   - etils
   - imageio
   - immutabledict
+  - importlib_resources
   - ipywidgets
   - jax
   - jaxtyping

@@ -67,8 +67,7 @@ and semantic sampling of parameters.
     ```
 
     NOTE: Due to the dependency on the Tensorflow package, The Python version is
-    currently limited to 3.13. If you are on Windows platform, you might need to
-    set the Python version to 3.12.
+    currently limited to 3.13.
 
 ## Getting Started
 
