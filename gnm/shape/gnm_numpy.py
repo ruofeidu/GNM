@@ -39,6 +39,7 @@ from typing import Any, TYPE_CHECKING
 from absl import logging
 from etils import epath
 from gnm.shape import gnm_base
+from gnm.shape import gnm_landmarks
 from gnm.shape.data.versions import gnm_specs
 import numpy as np
 import numpy.typing as npt
@@ -48,6 +49,7 @@ GNMVersion = gnm_specs.GNMVersion
 GNMMajorVersion = gnm_specs.GNMMajorVersion
 GNMVariant = gnm_specs.GNMVariant
 GNMBodyPart = gnm_specs.GNMBodyPart
+GNMLandmarksType = gnm_landmarks.GNMLandmarksType
 
 _NONZERO_THRESHOLD = 1e-4
 _EPSILON = 1e-8
@@ -144,6 +146,9 @@ class GNM(gnm_base.GNMBase):
 
   if TYPE_CHECKING:
     _vertex_group_names_lookup: dict[str, int]
+    _landmarks: dict[
+        gnm_landmarks.GNMLandmarksType, gnm_landmarks.LandmarksConfiguration
+    ]
 
   @classmethod
   def _from_model_data(
@@ -251,6 +256,46 @@ class GNM(gnm_base.GNMBase):
         bind_to_world_transforms,
         vertices_bind_h,
     )[..., :3]
+
+  def vertices_and_landmarks(
+      self,
+      landmarks_type: gnm_landmarks.GNMLandmarksType,
+      identity: npt.NDArray[np.floating] | None = None,
+      expression: npt.NDArray[np.floating] | None = None,
+      rotations: npt.NDArray[np.floating] | None = None,
+      translation: npt.NDArray[np.floating] | None = None,
+  ) -> tuple[npt.NDArray[np.floating], npt.NDArray[np.floating]]:
+    """Evaluates the GNM mesh-generating function and extracts 3D landmarks.
+
+    Args:
+      landmarks_type: The type of landmarks to extract.
+      identity: Identity coefficients ([A1, ..., An], I).
+      expression: Expression coefficients ([A1, ..., An], E).
+      rotations: Joint rotations ([A1, ..., An], J, 3).
+      translation: Root-joint translation ([A1, ..., An], 3).
+
+    Returns:
+      A tuple of (vertices, landmarks) where vertices has shape
+      ([A1, ..., An], V, 3) and landmarks has shape ([A1, ..., An], L, 3).
+    """
+    gnm_landmarks.check_body_part_compatibility(landmarks_type, self.body_part)
+    if not hasattr(self, '_landmarks'):
+      self._landmarks = {}
+    if landmarks_type not in self._landmarks:
+      self._landmarks[landmarks_type] = gnm_landmarks.load_landmarks(
+          landmarks_type
+      )
+    config = self._landmarks[landmarks_type]
+
+    vertices = self.__call__(
+        identity=identity,
+        expression=expression,
+        rotations=rotations,
+        translation=translation,
+    )
+    face_vertices = vertices[..., config.indices, :]
+    landmarks = np.sum(face_vertices * config.weights[..., None], axis=-2)
+    return vertices, landmarks
 
   @property
   def num_vertices(self) -> int:

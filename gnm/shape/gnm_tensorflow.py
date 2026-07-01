@@ -36,9 +36,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 import dataclasses
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from gnm.shape import gnm_base
+from gnm.shape import gnm_landmarks
 from gnm.shape.data.versions import gnm_specs
 import numpy as np
 import tensorflow as tf
@@ -47,6 +48,7 @@ GNMVersion = gnm_specs.GNMVersion
 GNMMajorVersion = gnm_specs.GNMMajorVersion
 GNMVariant = gnm_specs.GNMVariant
 GNMBodyPart = gnm_specs.GNMBodyPart
+GNMLandmarksType = gnm_landmarks.GNMLandmarksType
 
 _EPSILON = 1.0e-09
 _PACKAGE_NAME = 'GNM'
@@ -173,6 +175,9 @@ class GNM(gnm_base.GNMBase):
   vertex_groups: tf.Tensor  # (G, V)
   vertex_group_names: Sequence[str]  # (G,)
 
+  if TYPE_CHECKING:
+    _landmarks: dict[gnm_landmarks.GNMLandmarksType, Any]
+
   @classmethod
   def _from_model_data(
       cls,
@@ -293,6 +298,51 @@ class GNM(gnm_base.GNMBase):
     vertices += pose_correctives
 
     return self.vertex_positions_world(vertices, joints, rotations, translation)
+
+  def vertices_and_landmarks(
+      self,
+      landmarks_type: gnm_landmarks.GNMLandmarksType,
+      identity: TensorOrVariable | None = None,
+      expression: TensorOrVariable | None = None,
+      rotations: TensorOrVariable | None = None,
+      translation: TensorOrVariable | None = None,
+  ) -> tuple[tf.Tensor, tf.Tensor]:
+    """Evaluates the GNM mesh function and extracts 3D landmarks.
+
+    Args:
+      landmarks_type: The type of landmarks to extract.
+      identity: Identity coefficients ([A1, ..., An], I).
+      expression: Expression coefficients ([A1, ..., An], E).
+      rotations: Joint rotations ([A1, ..., An], J, 3).
+      translation: Root-joint translation ([A1, ..., An], 3).
+
+    Returns:
+      A tuple of (vertices, landmarks).
+    """
+    gnm_landmarks.check_body_part_compatibility(landmarks_type, self.body_part)
+    if not hasattr(self, '_landmarks'):
+      self._landmarks = {}
+    if landmarks_type not in self._landmarks:
+      config = gnm_landmarks.load_landmarks(landmarks_type)
+      self._landmarks[landmarks_type] = (
+          tf.convert_to_tensor(config.indices, dtype=tf.int32),
+          tf.convert_to_tensor(config.weights, dtype=tf.float32),
+      )
+    indices, weights = self._landmarks[landmarks_type]
+
+    vertices = self.__call__(
+        identity=identity,
+        expression=expression,
+        rotations=rotations,
+        translation=translation,
+    )
+    weights = tf.cast(weights, dtype=vertices.dtype)
+
+    face_vertices = tf.gather(vertices, indices, axis=-2)
+    landmarks = tf.reduce_sum(
+        face_vertices * tf.expand_dims(weights, axis=-1), axis=-2
+    )
+    return vertices, landmarks
 
   def vertex_positions_world(
       self,

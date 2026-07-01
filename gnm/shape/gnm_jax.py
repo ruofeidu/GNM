@@ -38,9 +38,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 import dataclasses
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from gnm.shape import gnm_base
+from gnm.shape import gnm_landmarks
 from gnm.shape.data.versions import gnm_specs
 import jax
 import jax.numpy as jnp
@@ -52,6 +53,7 @@ GNMVersion = gnm_specs.GNMVersion
 GNMMajorVersion = gnm_specs.GNMMajorVersion
 GNMVariant = gnm_specs.GNMVariant
 GNMBodyPart = gnm_specs.GNMBodyPart
+GNMLandmarksType = gnm_landmarks.GNMLandmarksType
 
 
 def _as_jnp_float32_array(data: np.ndarray) -> jt.Float[jt.Array, '...']:
@@ -188,6 +190,9 @@ class GNM(gnm_base.GNMBase):
   ]
   vertex_groups: jt.Float[jt.Array, 'G {self.num_vertices}']
   vertex_group_names: Sequence[str]  # (G,)
+
+  if TYPE_CHECKING:
+    _landmarks: dict[gnm_landmarks.GNMLandmarksType, Any]
 
   @classmethod
   def _from_model_data(
@@ -353,6 +358,56 @@ class GNM(gnm_base.GNMBase):
     )[..., :3]
 
     return vertices_skinned
+
+  @jt.jaxtyped(typechecker=_typechecker)
+  def vertices_and_landmarks(
+      self,
+      landmarks_type: gnm_landmarks.GNMLandmarksType,
+      identity: jt.Float[jt.Array, '*N {self.identity_dim}'],
+      expression: jt.Float[jt.Array, '*N {self.expression_dim}'],
+      rotations: jt.Float[jt.Array, '*N {self.num_joints} 3'],
+      translation: jt.Float[jt.Array, '*N 3'],
+      *,
+      precision: jax.lax.PrecisionLike = 'float32',
+  ) -> tuple[
+      jt.Float[jt.Array, '*N {self.num_vertices} 3'],
+      jt.Float[jt.Array, '*N _ 3'],
+  ]:
+    """Evaluates the GNM mesh function and extracts 3D landmarks.
+
+    Args:
+      landmarks_type: The type of landmarks to extract.
+      identity: A batch of identity coefficients.
+      expression: A batch of expression coefficients.
+      rotations: A batch of joint rotations.
+      translation: A batch of root-joint translations.
+      precision: The precision of the JAX operations.
+
+    Returns:
+      A tuple of (vertices, landmarks).
+    """
+    gnm_landmarks.check_body_part_compatibility(landmarks_type, self.body_part)
+    if not hasattr(self, '_landmarks'):
+      self._landmarks = {}
+    if landmarks_type not in self._landmarks:
+      config = gnm_landmarks.load_landmarks(landmarks_type)
+      self._landmarks[landmarks_type] = (
+          jnp.array(config.indices, dtype=jnp.int32),
+          jnp.array(config.weights, dtype=jnp.float32),
+      )
+    indices, weights = self._landmarks[landmarks_type]
+    weights = weights.astype(identity.dtype)
+
+    vertices = self.__call__(
+        identity=identity,
+        expression=expression,
+        rotations=rotations,
+        translation=translation,
+        precision=precision,
+    )
+    face_vertices = vertices[..., indices, :]
+    landmarks = jnp.sum(face_vertices * weights[..., None], axis=-2)
+    return vertices, landmarks
 
   @jt.jaxtyped(typechecker=_typechecker)
   def vertex_positions_bind_pose(

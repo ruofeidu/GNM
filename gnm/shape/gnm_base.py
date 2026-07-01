@@ -24,7 +24,6 @@ from typing import Any, Self
 from gnm.shape import gnm_data_loader
 from gnm.shape import gnm_data_schema
 from gnm.shape.data.versions import gnm_specs
-from gnm.shape.protos import gnm_specs_pb2
 
 
 class GNMBaseMeta(abc.ABCMeta):
@@ -97,10 +96,3 @@ class GNMBase(metaclass=GNMBaseMeta):
   def body_part(self) -> gnm_specs.GNMBodyPart:
     """Returns the body part of the GNM model."""
     return gnm_specs.GNM_VARIANT_TO_BODY_PART_MAP[self.variant]
-
-  def get_gnm_specs_proto(self) -> gnm_specs_pb2.GNMSpecs:
-    """Returns the populated GNMSpecs proto."""
-    return gnm_specs_pb2.GNMSpecs(
-        version=str(self.version),
-        variant=str(self.variant),
-    )

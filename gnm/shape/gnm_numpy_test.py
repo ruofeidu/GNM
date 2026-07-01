@@ -316,6 +316,45 @@ class GNMNumpyTest(parameterized.TestCase):
 
   @parameterized.product(
       version=_MAINTAINED_MAJOR_GNM_VERSIONS,
+      variant=(gnm_numpy.GNMVariant.HEAD.value,),
+      batch_size=[(), (2,), (2, 3)],
+  )
+  def test_vertices_and_landmarks(
+      self, version: str, variant: str, batch_size: tuple[int, ...]
+  ):
+    """Test extracting vertices and landmarks."""
+    if variant not in self.gnms[version]:
+      self.skipTest(f'variant {variant} not supported in {version}.')
+    gnm_np = self.gnms[version][variant]
+    kwargs = self._get_default_kwargs(gnm_np, batch_dims=batch_size)
+    verts, landmarks = gnm_np.vertices_and_landmarks(
+        gnm_numpy.GNMLandmarksType.HEAD_SPARSE_68, **kwargs
+    )
+    self.assertEqual(verts.shape, (*batch_size, gnm_np.num_vertices, 3))
+    self.assertEqual(landmarks.shape, (*batch_size, 68, 3))
+
+  @parameterized.product(
+      version=_MAINTAINED_MAJOR_GNM_VERSIONS,
+      variant=(
+          gnm_numpy.GNMVariant.BODY.value,
+          gnm_numpy.GNMVariant.HAND.value,
+      ),
+  )
+  def test_vertices_and_landmarks_incompatible_body_part(
+      self, version: str, variant: str
+  ):
+    """Test that incompatible body parts raise ValueError."""
+    if variant not in self.gnms[version]:
+      self.skipTest(f'variant {variant} not supported in {version}.')
+    gnm_np = self.gnms[version][variant]
+    kwargs = self._get_default_kwargs(gnm_np)
+    with self.assertRaises(ValueError):
+      gnm_np.vertices_and_landmarks(
+          gnm_numpy.GNMLandmarksType.HEAD_SPARSE_68, **kwargs
+      )
+
+  @parameterized.product(
+      version=_MAINTAINED_MAJOR_GNM_VERSIONS,
       variant=tuple(_SUPPORTED_VARIANTS),
   )
   def test_vertex_groups_exist(self, version: str, variant: str):

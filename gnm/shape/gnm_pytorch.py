@@ -33,9 +33,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 import dataclasses
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from gnm.shape import gnm_base
+from gnm.shape import gnm_landmarks
 from gnm.shape.data.versions import gnm_specs
 import numpy as np
 import torch
@@ -47,6 +48,7 @@ GNMVersion = gnm_specs.GNMVersion
 GNMMajorVersion = gnm_specs.GNMMajorVersion
 GNMVariant = gnm_specs.GNMVariant
 GNMBodyPart = gnm_specs.GNMBodyPart
+GNMLandmarksType = gnm_landmarks.GNMLandmarksType
 
 
 def _as_torch_float32_tensor(data: np.ndarray) -> torch.Tensor:
@@ -176,6 +178,9 @@ class GNM(gnm_base.GNMBase, torch.nn.Module):
   vertex_groups: torch.Tensor = ...
   vertex_group_names: Sequence[str] = ...
 
+  if TYPE_CHECKING:
+    _landmarks: dict[gnm_landmarks.GNMLandmarksType, Any]
+
   @classmethod
   def _from_model_data(
       cls,
@@ -297,6 +302,50 @@ class GNM(gnm_base.GNMBase, torch.nn.Module):
     # Reshape computed vertices to match original batch dimensions.
     output_shape = list(batch_dims) + [self.num_vertices, 3]
     return torch.reshape(vertices, output_shape)
+
+  def vertices_and_landmarks(
+      self,
+      landmarks_type: gnm_landmarks.GNMLandmarksType,
+      identity: torch.Tensor | None = None,
+      expression: torch.Tensor | None = None,
+      rotations: torch.Tensor | None = None,
+      translation: torch.Tensor | None = None,
+  ) -> tuple[torch.Tensor, torch.Tensor]:
+    """Evaluates the GNM mesh function and extracts 3D landmarks.
+
+    Args:
+      landmarks_type: The type of landmarks to extract.
+      identity: Identity coefficients ([A1, ..., An], I).
+      expression: Expression coefficients ([A1, ..., An], E).
+      rotations: Joint rotations ([A1, ..., An], J, 3).
+      translation: Root-joint translation ([A1, ..., An], 3).
+
+    Returns:
+      A tuple of (vertices, landmarks).
+    """
+    gnm_landmarks.check_body_part_compatibility(landmarks_type, self.body_part)
+    if not hasattr(self, '_landmarks'):
+      self._landmarks = {}
+    if landmarks_type not in self._landmarks:
+      config = gnm_landmarks.load_landmarks(landmarks_type)
+      self._landmarks[landmarks_type] = (
+          torch.from_numpy(config.indices).long(),
+          torch.from_numpy(config.weights).float(),
+      )
+    indices, weights = self._landmarks[landmarks_type]
+
+    vertices = self.__call__(
+        identity=identity,
+        expression=expression,
+        rotations=rotations,
+        translation=translation,
+    )
+    indices = indices.to(device=vertices.device)
+    weights = weights.to(device=vertices.device, dtype=vertices.dtype)
+
+    face_vertices = vertices[..., indices, :]
+    landmarks = (face_vertices * weights.unsqueeze(-1)).sum(dim=-2)
+    return vertices, landmarks
 
   def _forward(
       self,

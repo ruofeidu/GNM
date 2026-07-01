@@ -151,6 +151,52 @@ class GNMPytorchTest(parameterized.TestCase):
 
   @parameterized.product(
       version=_MAINTAINED_MAJOR_GNM_VERSIONS,
+      variant=(gnm_pytorch.GNMVariant.HEAD,),
+      batch_size=[(), (2,), (2, 3)],
+  )
+  def test_vertices_and_landmarks(
+      self, version: str, variant: Any, batch_size: tuple[int, ...]
+  ):
+    """Tests extracting vertices and landmarks in PyTorch."""
+    variant_str = variant.value if hasattr(variant, 'value') else variant
+    if variant_str not in self.gnms_np[version]:
+      self.skipTest(f'variant {variant_str} not supported in {version}.')
+    gnm_torch = self.gnms_pytorch[version][variant_str]
+    gnm_np = self.gnms_np[version][variant_str]
+
+    parameters_torch = self._get_random_kwargs(
+        gnm_np, batch_size, device=self.device
+    )
+    verts, landmarks = gnm_torch.vertices_and_landmarks(
+        gnm_pytorch.GNMLandmarksType.HEAD_SPARSE_68, **parameters_torch
+    )
+    self.assertEqual(verts.shape, (*batch_size, gnm_torch.num_vertices, 3))
+    self.assertEqual(landmarks.shape, (*batch_size, 68, 3))
+
+  @parameterized.product(
+      version=_MAINTAINED_MAJOR_GNM_VERSIONS,
+      variant=(gnm_pytorch.GNMVariant.BODY, gnm_pytorch.GNMVariant.HAND),
+  )
+  def test_vertices_and_landmarks_incompatible_body_part(
+      self, version: str, variant: Any
+  ):
+    """Tests that incompatible body parts raise ValueError in PyTorch."""
+    variant_str = variant.value if hasattr(variant, 'value') else variant
+    if variant_str not in self.gnms_np[version]:
+      self.skipTest(f'variant {variant_str} not supported in {version}.')
+    gnm_torch = self.gnms_pytorch[version][variant_str]
+    gnm_np = self.gnms_np[version][variant_str]
+
+    parameters_torch = self._get_random_kwargs(
+        gnm_np, [1], device=self.device
+    )
+    with self.assertRaises(ValueError):
+      gnm_torch.vertices_and_landmarks(
+          gnm_pytorch.GNMLandmarksType.HEAD_SPARSE_68, **parameters_torch
+      )
+
+  @parameterized.product(
+      version=_MAINTAINED_MAJOR_GNM_VERSIONS,
       variant=tuple(_SUPPORTED_VARIANTS),
   )
   def test_bad_shape(self, version: str, variant: Any):

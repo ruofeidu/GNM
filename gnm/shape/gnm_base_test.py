@@ -22,7 +22,6 @@ from typing import Any
 from absl.testing import absltest
 from gnm.shape import gnm_base
 from gnm.shape.data.versions import gnm_specs
-from gnm.shape.protos import gnm_specs_pb2
 
 
 class DummyGNM(gnm_base.GNMBase):
@@ -59,13 +58,6 @@ class GNMBaseTest(absltest.TestCase):
         version=gnm_specs.GNMVersion.V0_0,
         variant=gnm_specs.GNMVariant.EXPERIMENTAL,
     )
-
-  def test_get_gnm_specs_proto(self) -> None:
-    expected_proto = gnm_specs_pb2.GNMSpecs(
-        version="0.0",
-        variant="experimental",
-    )
-    self.assertEqual(self.gnm.get_gnm_specs_proto(), expected_proto)
 
   def test_properties(self) -> None:
     self.assertEqual(self.gnm.major_version, gnm_specs.GNMMajorVersion.V0)
