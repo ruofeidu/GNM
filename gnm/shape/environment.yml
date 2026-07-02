@@ -15,7 +15,7 @@ dependencies:
   - jaxtyping
   - mediapy
   - notebook
-  - numpy
+  - numpy  
   - opt-einsum
   - scipy
   - tqdm
@@ -23,12 +23,13 @@ dependencies:
   - typeguard
   - rtree
   - pylint
-  - pytorch
   - pip:
+      # Installed via pip to avoid macOS failing to build.
+      - opencv-python-headless
       # Installed via pip to avoid macOS dynamic linking conflicts with conda-forge's libprotobuf.
       - tensorflow
       # Not available on conda-forge.
       - tensorflow-graphics
-      # Installed via pip to avoid macOS failing to build.
-      - opencv-python-headless
+      # Installed via pip to avoid a crash on macOS.
+      - torch
 
