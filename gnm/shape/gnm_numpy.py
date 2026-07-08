@@ -713,50 +713,6 @@ class GNM(gnm_base.GNMBase):
     vertex_normals = vertex_normals / np.maximum(normal_magnitudes, _EPSILON)
     return vertex_normals.reshape(*batch_dims, *non_batch_dims)
 
-  def save_obj(
-      self, path: str | epath.Path, vertices: npt.NDArray[np.floating]
-  ) -> None:
-    """Saves a Wavefront OBJ file of GNM with the provided vertex positions.
-
-    Args:
-      path: Path to an OBJ file.
-      vertices: 3D vertex positions of GNM, (V, 3).
-    """
-    expected_shape = self.template_vertex_positions.shape
-    if vertices.shape != expected_shape:
-      raise ValueError(
-          f'Expecting vertices to have shape {expected_shape}. Got'
-          f' {vertices.shape}.'
-      )
-
-    with epath.Path(path).open('w') as f:
-      # Write vertex position data.
-      for x, y, z in vertices:
-        f.write(f'v {x:.06f} {y:.06f} {z:.06f}\n')
-
-      # Write texture coordinates.
-      unique_uvs, uv_indices = np.unique(
-          self.quad_uvs.reshape(-1, 2), axis=0, return_inverse=True
-      )
-      uv_indices = uv_indices.reshape(-1, 4)
-      for u, v in unique_uvs:
-        f.write(f'vt {u:.06f} {v:.06f}\n')
-
-      # Write quad topology with texture coordinates. Note: OBJ is 1-indexed.
-      f.write('s 1\n')  # Smooth all faces.
-      mesh_parts = self.mesh_component_names
-      if mesh_parts is None or len(mesh_parts) == 0:
-        mesh_parts = ('skin',)
-      for part_name in mesh_parts:
-        f.write(f'g {part_name}\n')
-        for i in self.quad_indices_for_group(part_name):
-          quad = self.quads[i] + 1
-          uv_idxs = uv_indices[i] + 1
-          f.write('f')
-          for vertex_index, uv_index in zip(quad, uv_idxs):
-            f.write(f' {vertex_index}/{uv_index}')
-          f.write('\n')
-
   def _check_inputs(
       self,
       identity: npt.NDArray[np.floating],

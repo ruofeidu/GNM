@@ -490,40 +490,6 @@ class GNMNumpyTest(parameterized.TestCase):
       version=_MAINTAINED_MAJOR_GNM_VERSIONS,
       variant=tuple(_SUPPORTED_VARIANTS),
   )
-  def test_save_obj(self, version: str, variant: str):
-    """Checks we can save a GNM mesh to OBJ."""
-    if variant not in self.gnms[version]:
-      self.skipTest(f'variant {variant} not supported in {version}.')
-    obj_path = os.path.join(self.create_tempdir(), 'gnm.obj')
-
-    gnm_np = self.gnms[version][variant]
-
-    # Choose slightly random GNM vertices.
-    vertices = gnm_np.template_vertex_positions
-    vertices += self.rng.uniform(-0.01, 0.01, size=vertices.shape)
-
-    # Wrong number of vertices should throw a ValueError.
-    with self.assertRaises(ValueError):
-      gnm_np.save_obj(obj_path, vertices[:-1])
-
-    gnm_np.save_obj(obj_path, vertices)
-
-    self.assertTrue(os.path.exists(obj_path))
-
-    # Loading the OBJ should give us the same vertex positions.
-    kwargs = {'file_type': 'OBJ', 'process': False, 'maintain_order': True}
-    with open(obj_path, 'rb') as f:
-      mesh = trimesh.load(f, **kwargs)
-    np.testing.assert_allclose(vertices, mesh.vertices, atol=1e-4)
-
-    # The OBJ should contain faces (i.e. quads or triangles).
-    with open(obj_path, 'r', encoding='utf-8') as f:
-      self.assertTrue(any(l.startswith('f') for l in f.readlines()))
-
-  @parameterized.product(
-      version=_MAINTAINED_MAJOR_GNM_VERSIONS,
-      variant=tuple(_SUPPORTED_VARIANTS),
-  )
   def test_parts_are_non_overlapping_and_complete(
       self, version: str, variant: str
   ):
