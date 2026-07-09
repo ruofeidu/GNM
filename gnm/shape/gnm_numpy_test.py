@@ -399,37 +399,6 @@ class GNMNumpyTest(parameterized.TestCase):
       np.testing.assert_allclose(quad_uvs[:3], triangle_uvs_1)
       np.testing.assert_allclose(quad_uvs[np.array([2, 3, 0])], triangle_uvs_2)
 
-
-  @parameterized.product(
-      version=_MAINTAINED_MAJOR_GNM_VERSIONS,
-      variant=tuple(_SUPPORTED_VARIANTS),
-  )
-  def test_single_atlas_uvs(self, version: str, variant: str):
-    """Tests shapes of single-atlas UVs match canonical UVs."""
-    if variant not in self.gnms[version]:
-      self.skipTest(f'variant {variant} not supported in {version}.')
-    gnm_np = self.gnms[version][variant]
-
-
-    self.skipTest(
-        'Skipping until unified GNM model files attributes are implemented.'
-    )
-
-    with self.subTest('quad_uvs'):
-      single_atlas_quad_uvs = gnm_np.single_atlas_quad_uvs
-      self.assertIsNotNone(single_atlas_quad_uvs)
-      self.assertEqual(
-          gnm_np.quad_uvs.shape,
-          single_atlas_quad_uvs.shape,
-      )
-    with self.subTest('triangle_uvs'):
-      single_atlas_triangle_uvs = gnm_np.single_atlas_triangle_uvs
-      self.assertIsNotNone(single_atlas_triangle_uvs)
-      self.assertEqual(
-          gnm_np.triangle_uvs.shape,
-          single_atlas_triangle_uvs.shape,
-      )
-
   @parameterized.product(
       version=_MAINTAINED_MAJOR_GNM_VERSIONS,
       variant=tuple(_SUPPORTED_VARIANTS),

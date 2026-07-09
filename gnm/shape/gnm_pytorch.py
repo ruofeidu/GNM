@@ -103,8 +103,6 @@ class GNM(gnm_base.GNMBase, torch.nn.Module):
     triangles: The mesh topology as triangles, (T, 3).
     quad_uvs: Texture coordinates per quad, (Q, 4, 2).
     triangle_uvs: Texture coordinates per triangle, (T, 3, 2).
-    single_atlas_quad_uvs: Non-overlapping per-quad texture coordinates.
-    single_atlas_triangle_uvs: Non-overlapping per-triangle texture coordinates.
     mesh_component_names: The vertex group name corresponding to each separate
       mesh part.
     mirror_indices: The index of each vertex on the other side of the mesh.
@@ -139,8 +137,6 @@ class GNM(gnm_base.GNMBase, torch.nn.Module):
       'triangles': _as_torch_int32_tensor,
       'quad_uvs': _as_torch_float32_tensor,
       'triangle_uvs': _as_torch_float32_tensor,
-      'single_atlas_quad_uvs': _as_torch_float32_tensor,
-      'single_atlas_triangle_uvs': _as_torch_float32_tensor,
       'mesh_component_names': _as_original,
       'mirror_indices': _as_torch_int32_tensor,
       'joint_regressor': _as_torch_float32_tensor,
@@ -168,8 +164,6 @@ class GNM(gnm_base.GNMBase, torch.nn.Module):
   triangles: torch.Tensor = ...
   quad_uvs: torch.Tensor = ...
   triangle_uvs: torch.Tensor = ...
-  single_atlas_quad_uvs: torch.Tensor = ...
-  single_atlas_triangle_uvs: torch.Tensor = ...
   mesh_component_names: Sequence[str] = ...
   mirror_indices: torch.Tensor = ...
   joint_regressor: torch.Tensor = ...

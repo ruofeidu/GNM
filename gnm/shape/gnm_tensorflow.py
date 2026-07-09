@@ -138,8 +138,6 @@ class GNM(gnm_base.GNMBase):
       'triangles': _as_tf_constant_int32,
       'quad_uvs': _as_tf_constant_float32,
       'triangle_uvs': _as_tf_constant_float32,
-      'single_atlas_quad_uvs': _as_tf_constant_float32,
-      'single_atlas_triangle_uvs': _as_tf_constant_float32,
       'mesh_component_names': _as_original,
       'mirror_indices': _as_tf_constant_int32,
       'joint_regressor': _as_tf_constant_float32,
@@ -165,8 +163,6 @@ class GNM(gnm_base.GNMBase):
   triangles: tf.Tensor  # (T, 3)
   quad_uvs: tf.Tensor  # (Q, 4, 2)
   triangle_uvs: tf.Tensor  # (T, 3, 2)
-  single_atlas_quad_uvs: tf.Tensor  # (Q, 4, 2)
-  single_atlas_triangle_uvs: tf.Tensor  # (T, 3, 2)
   mesh_component_names: Sequence[str]  # (P,)
   mirror_indices: tf.Tensor  # (V,)
   joint_regressor: tf.Tensor  # (J, V)

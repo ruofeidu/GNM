@@ -92,8 +92,6 @@ class GNM(gnm_base.GNMBase):
     triangles: The mesh topology as triangles, (T, 3).
     quad_uvs: Texture coordinates per quad, (Q, 4, 2).
     triangle_uvs: Texture coordinates per triangle, (T, 3, 2).
-    single_atlas_quad_uvs: Non-overlapping per-quad texture coordinates.
-    single_atlas_triangle_uvs: Non-overlapping per-triangle texture coordinates.
     mesh_component_names: The vertex group name corresponding to each separate
       mesh part.
     mirror_indices: The index of each vertex on the other side of the mesh.
@@ -134,8 +132,6 @@ class GNM(gnm_base.GNMBase):
   triangles: np.ndarray  # (T, 3)
   quad_uvs: np.ndarray  # (Q, 4, 2)
   triangle_uvs: np.ndarray  # (T, 3, 2)
-  single_atlas_quad_uvs: np.ndarray  # (Q, 4, 2)
-  single_atlas_triangle_uvs: np.ndarray  # (T, 3, 2)
   mesh_component_names: Sequence[str]  # (P,)
   mirror_indices: np.ndarray  # (V,)
   joint_regressor: np.ndarray  # (J, V)

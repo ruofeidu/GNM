@@ -31,8 +31,6 @@ GNM_DATA_ATTRIBUTES = [
     'triangles',
     'quad_uvs',
     'triangle_uvs',
-    'single_atlas_quad_uvs',
-    'single_atlas_triangle_uvs',
     'mesh_component_names',
     'mirror_indices',
     'joint_regressor',

@@ -108,8 +108,6 @@ class GNM(gnm_base.GNMBase):
     triangles: The mesh topology as triangles, (T, 3).
     quad_uvs: Texture coordinates per quad, (Q, 4, 2).
     triangle_uvs: Texture coordinates per triangle, (T, 3, 2).
-    single_atlas_quad_uvs: Non-overlapping per-quad texture coordinates.
-    single_atlas_triangle_uvs: Non-overlapping per-triangle texture coordinates.
     mesh_component_names: The vertex group name corresponding to each separate
       mesh part.
     mirror_indices: The index of each vertex on the other side of the mesh.
@@ -144,8 +142,6 @@ class GNM(gnm_base.GNMBase):
       'triangles': _as_jnp_int32_array,
       'quad_uvs': _as_jnp_float32_array,
       'triangle_uvs': _as_jnp_float32_array,
-      'single_atlas_quad_uvs': _as_jnp_float32_array,
-      'single_atlas_triangle_uvs': _as_jnp_float32_array,
       'mesh_component_names': _as_original,
       'mirror_indices': _as_jnp_int32_array,
       'joint_regressor': _as_jnp_float32_array,
@@ -177,8 +173,6 @@ class GNM(gnm_base.GNMBase):
   triangles: jt.Int[jt.Array, 'T 3']
   quad_uvs: jt.Float[jt.Array, 'Q 4 2']
   triangle_uvs: jt.Float[jt.Array, 'T 3 2']
-  single_atlas_quad_uvs: jt.Float[jt.Array, 'Q 4 2']
-  single_atlas_triangle_uvs: jt.Float[jt.Array, 'T 3 2']
   mesh_component_names: Sequence[str]  # (P,)
   mirror_indices: jt.Int[jt.Array, '{self.num_vertices}']
   joint_regressor: jt.Float[jt.Array, '{self.num_joints} {self.num_vertices}']
