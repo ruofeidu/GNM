@@ -18,17 +18,17 @@ import enum
 
 
 class GNMVersion(enum.StrEnum):
-    V3_0 = '3.0'
+  V3_0 = '3.0'
 
 class GNMMajorVersion(enum.StrEnum):
-    V3 = '3'
+  V3 = '3'
 
 class GNMVariant(enum.StrEnum):
-    HEAD = 'head'
+  HEAD = 'head'
 
 class GNMBodyPart(enum.StrEnum):
-    HEAD = 'head'
+  HEAD = 'head'
 
 GNM_VARIANT_TO_BODY_PART_MAP = {
-    GNMVariant.HEAD: GNMBodyPart.HEAD,
+  GNMVariant.HEAD: GNMBodyPart.HEAD,
 }

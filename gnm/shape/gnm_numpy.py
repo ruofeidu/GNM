@@ -37,7 +37,6 @@ import functools
 from typing import Any, TYPE_CHECKING
 
 from absl import logging
-from etils import epath
 from gnm.shape import gnm_base
 from gnm.shape import gnm_landmarks
 from gnm.shape.data.versions import gnm_specs
