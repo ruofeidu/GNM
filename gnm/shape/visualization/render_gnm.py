@@ -420,10 +420,10 @@ def get_look_at_world_to_camera(
     camera_distance: np.ndarray | float | None = _DEFAULT_CAMERA_DISTANCE,
     share_camera: np.ndarray | bool = True,
     y_up: np.ndarray | bool = False,
-    look_at_vertex_group: str = 'hockey_mask',
-    left_vertex_group: str = 'left_ear',
-    right_vertex_group: str = 'right_ear',
-    forward_vertex_group: str = 'nose_region',
+    look_at_vertex_groups: Sequence[str] = ('hockey_mask',),
+    left_vertex_groups: Sequence[str] = ('left_ear',),
+    right_vertex_groups: Sequence[str] = ('right_ear',),
+    forward_vertex_groups: Sequence[str] = ('nose_region',),
 ) -> np.ndarray:
   """Compute world-to-camera matrices for a 'look-at' transform.
 
@@ -439,10 +439,10 @@ def get_look_at_world_to_camera(
       generation, (..., 1). It is assumed that the first dimension of vertices
       is the time dimension.
     y_up: Whether to use the Y-up convention for the world space, (..., 1).
-    look_at_vertex_group: The vertex group to look at.
-    left_vertex_group: The vertex group to use for the left axis.
-    right_vertex_group: The vertex group to use for the right axis.
-    forward_vertex_group: The vertex group to use for the forward axis.
+    look_at_vertex_groups: The vertex groups to look at.
+    left_vertex_groups: The vertex groups to use for the left axis.
+    right_vertex_groups: The vertex groups to use for the right axis.
+    forward_vertex_groups: The vertex groups to use for the forward axis.
 
   Returns:
     The world-to-camera matrices, (..., 4, 4).
@@ -470,13 +470,13 @@ def get_look_at_world_to_camera(
 
   gnm_axes = _get_gnm_axes(
       vertices_for_camera,
-      left_vertex_group=left_vertex_group,
-      right_vertex_group=right_vertex_group,
-      forward_vertex_group=forward_vertex_group,
+      left_vertex_groups=left_vertex_groups,
+      right_vertex_groups=right_vertex_groups,
+      forward_vertex_groups=forward_vertex_groups,
       gnm_np=gnm_np,
   )
   camera_target = _vertex_group_mean(
-      vertices_for_camera, look_at_vertex_group, gnm_np
+      vertices_for_camera, look_at_vertex_groups, gnm_np
   )
   camera_location = camera_target + _get_camera_offset(
       gnm_axes,
@@ -611,16 +611,16 @@ def get_spin_world_to_camera(
 
 def _get_gnm_axes(
     vertices: np.ndarray,
-    left_vertex_group: str,
-    right_vertex_group: str,
-    forward_vertex_group: str,
+    left_vertex_groups: Sequence[str],
+    right_vertex_groups: Sequence[str],
+    forward_vertex_groups: Sequence[str],
     gnm_np: gnm_numpy.GNM,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
   """Determines the right, up, and forwards direction vectors of GNM."""
 
-  left = _vertex_group_mean(vertices, left_vertex_group, gnm_np)
-  right = _vertex_group_mean(vertices, right_vertex_group, gnm_np)
-  forward_point = _vertex_group_mean(vertices, forward_vertex_group, gnm_np)
+  left = _vertex_group_mean(vertices, left_vertex_groups, gnm_np)
+  right = _vertex_group_mean(vertices, right_vertex_groups, gnm_np)
+  forward_point = _vertex_group_mean(vertices, forward_vertex_groups, gnm_np)
   back_point = (left + right) / 2.0
   right = right - left
   right = right / np.linalg.norm(right, axis=-1, keepdims=True)
@@ -748,11 +748,11 @@ def _load_edgeflow_texture(texture_path: str | None) -> FloatArray | None:
 
 def _vertex_group_mean(
     vertices: np.ndarray,
-    group_name: str,
+    group_names: Sequence[str],
     gnm_np: gnm_numpy.GNM,
 ):
-  """Gets the average point of a GNM vertex group."""
-  indices = gnm_np.vertex_group_indices(group_name)
+  """Gets the average point of GNM vertex groups."""
+  indices = gnm_np.vertex_group_indices(*group_names)
   return vertices[..., indices, :].mean(axis=-2)
 
 
