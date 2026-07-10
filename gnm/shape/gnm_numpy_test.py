@@ -777,23 +777,23 @@ class GNMNumpyTest(parameterized.TestCase):
     expected_groups = gnm_utils.identity_region_names(gnm)
     regexes = [f'^{n}_[0-9][0-9][0-9]$' for n in expected_groups]
 
-    region_inds = []
+    region_indices = []
     for regex in regexes:
       matcher = np.vectorize(lambda x: bool(re.match(regex, x)))  # pylint: disable=cell-var-from-loop
-      region_inds.append(np.where(matcher(gnm.identity_names))[0])
+      region_indices.append(np.where(matcher(gnm.identity_names))[0])
 
     with self.subTest('Identity regions are nonempty with no duplicates.'):
-      for inds in region_inds:
-        self.assertNotEmpty(inds)
-        np.testing.assert_array_equal(inds, np.unique(inds))
+      for indices in region_indices:
+        self.assertNotEmpty(indices)
+        np.testing.assert_array_equal(indices, np.unique(indices))
 
     with self.subTest('Identity regions have expected combined length.'):
       self.assertEqual(
-          sum([region.size for region in region_inds]), gnm.identity_dim
+          sum([region.size for region in region_indices]), gnm.identity_dim
       )
     with self.subTest('Identity regions exactly cover the identity basis.'):
       np.testing.assert_array_equal(
-          np.unique(np.concatenate(region_inds)),
+          np.unique(np.concatenate(region_indices)),
           np.arange(gnm.identity_dim),
       )
 
@@ -813,23 +813,23 @@ class GNMNumpyTest(parameterized.TestCase):
         f'^{n}_[0-9][0-9][0-9]$'
         for n in ['left_eye', 'right_eye', 'mouth', 'tongue', 'eyeballs']
     ] + ['^tongue_mean$']
-    region_inds = []
+    region_indices = []
     for regex in regexes:
       matcher = np.vectorize(lambda x: bool(re.match(regex, x)))  # pylint: disable=cell-var-from-loop
-      region_inds.append(np.where(matcher(gnm.expression_names))[0])
+      region_indices.append(np.where(matcher(gnm.expression_names))[0])
 
     with self.subTest('Expression regions are nonempty with no duplicates.'):
-      for inds in region_inds:
-        self.assertNotEmpty(inds)
-        np.testing.assert_array_equal(inds, np.unique(inds))
+      for indices in region_indices:
+        self.assertNotEmpty(indices)
+        np.testing.assert_array_equal(indices, np.unique(indices))
 
     with self.subTest('Expression regions have expected combined length.'):
       self.assertEqual(
-          sum([region.size for region in region_inds]), gnm.expression_dim
+          sum([region.size for region in region_indices]), gnm.expression_dim
       )
     with self.subTest('Expression regions exactly cover the expression basis.'):
       np.testing.assert_array_equal(
-          np.unique(np.concatenate(region_inds)),
+          np.unique(np.concatenate(region_indices)),
           np.arange(gnm.expression_dim),
       )
 
