@@ -17,11 +17,63 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gnm_shape"
-version = "3.0"
-description = "GNM Shape Package"
-dependencies = []
+name = "gnm-shape"
+version = "3.0.0"
+description = "GNM Shape Library"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+dependencies = [    
+    "absl-py",
+    "etils",
+    "imageio",
+    "immutabledict",
+    "importlib_resources",
+    "ipywidgets",
+    "notebook",
+    "numpy",    
+    "opencv-python",
+    "opt-einsum",
+    "rtree",
+    "scipy",
+    "tensorflow",
+    "tqdm",
+    "trimesh",
+    "typeguard",    
+]
+
+[project.optional-dependencies]
+jax = [
+    "jax",
+    "jaxtyping",
+]
+pytorch = [
+    "torch",
+]
+all = [
+    "gnm-shape[jax,pytorch]",
+]
+dev = [
+    "pytest",
+    "pylint",
+    "mediapy",
+    "tensorflow-graphics",
+]
 
 [tool.setuptools]
+packages = [
+    "gnm.shape",
+    "gnm.shape.fitting_utils",
+    "gnm.shape.visualization",
+]
 package-dir = {"gnm.shape" = "."}
-packages = ["gnm.shape"]
+
+[tool.setuptools.package-data]
+"gnm.shape" = [
+    "data/**/*.npz",
+    "data/**/*.png",
+    "data/**/*.jpg",
+    "data/**/*.md",
+    "data/**/*.h5",
+    "assets/**/*",
+]

@@ -26,8 +26,14 @@ import mediapy as media
 import numpy as np
 from scipy.spatial import transform
 import tensorflow as tf
-from tensorflow_graphics.rendering import rasterization_backend
-from tensorflow_graphics.rendering import triangle_rasterizer
+
+try:
+  from tensorflow_graphics.rendering import rasterization_backend
+  from tensorflow_graphics.rendering import triangle_rasterizer
+
+  _HAS_TF_GRAPHICS = True
+except ImportError:
+  _HAS_TF_GRAPHICS = False
 
 
 _OPENCV_TO_OPENGL = np.diag([1.0, -1.0, -1.0, 1.0]).astype(dtype=np.float32)
@@ -367,6 +373,8 @@ class CameraConversionsTest(parameterized.TestCase):
       view_projection_matrix: np.ndarray,
   ) -> np.ndarray:
     """Rasterizes rectangle coordinates with a projection matrix."""
+    if not _HAS_TF_GRAPHICS:
+      self.skipTest("tensorflow_graphics not available on this platform.")
     buffers = triangle_rasterizer.rasterize(
         rectangle_3d,
         self.rectangle_triangles,

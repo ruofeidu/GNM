@@ -14,6 +14,7 @@
 
 """Script to run all GNM tests."""
 
+import os
 import sys
 import unittest
 from absl import app
@@ -21,9 +22,10 @@ from absl.testing import absltest
 
 
 def main(_):
-  # Discover and run all unit tests in the current directory and subdirectories
+  # Discover and run all tests inside this package directory and subdirectories.
+  start_dir = os.path.dirname(os.path.abspath(__file__))
   loader = absltest.TestLoader()
-  suite = loader.discover(start_dir='.', pattern='*_test.py')
+  suite = loader.discover(start_dir=start_dir, pattern='*_test.py')
   runner = unittest.TextTestRunner(verbosity=2)
   result = runner.run(suite)
   sys.exit(0 if result.wasSuccessful() else 1)

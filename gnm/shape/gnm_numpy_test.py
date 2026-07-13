@@ -29,7 +29,10 @@ from gnm.shape import gnm_utils
 from gnm.shape.data.versions import gnm_catalog
 import numpy as np
 from scipy.spatial import transform as transform_module
-from tensorflow_graphics.geometry.representation.mesh import normals as tf_normals
+try:
+  from tensorflow_graphics.geometry.representation.mesh import normals as tf_normals
+except ImportError:
+  tf_normals = None
 import trimesh
 from trimesh import transformations
 
@@ -972,6 +975,9 @@ class GNMNumpyTest(parameterized.TestCase):
     parameters = self._get_default_kwargs(gnm_np, batch_dims=batch_dims)
     vertices = gnm_np(**parameters)
     vertex_normals = gnm_np.compute_vertex_normals(vertices)
+
+    if tf_normals is None:
+      self.skipTest('tensorflow_graphics not available on this platform.')
 
     triangles_batch = np.broadcast_to(
         gnm_np.triangles, (*batch_dims, *gnm_np.triangles.shape)
