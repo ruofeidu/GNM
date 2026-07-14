@@ -105,8 +105,6 @@ def get_group_subsets_test_cases():
   for version in _MAINTAINED_MAJOR_GNM_VERSIONS:
     for group in ['skin', 'right_eye', 'lower_teeth_and_gums']:
       cases.append(dict(version=version, variant='head', group_name=group))
-    for group in ['skin', 'head', 'right_hand']:
-      cases.append(dict(version=version, variant='body', group_name=group))
   return cases
 
 

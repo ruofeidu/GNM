@@ -25,9 +25,36 @@ non-commercial and commercial applications.
 
 Here we list all the available GNM packages:
 
-| Name | Description | Chips | Teaser |
-| :--- | :--- | :--- | :---: |
-| **[GNM Head](gnm/shape/README.md)** | Parametric 3D statistical human head and face geometry model providing fine-grained, disentangled control over identity, expressions, and head pose. The model contains controllable internal anatomy including eyeballs, teeth and tongue. Includes multi-framework backend support for **NumPy**, **JAX**, **PyTorch**, and **TensorFlow**, along with semantic parameter sampling. | [![CI Linux](https://github.com/google/gnm/actions/workflows/ci-shape-linux.yml/badge.svg)](https://github.com/google/gnm/actions/workflows/ci-shape-linux.yml)<br>[![CI macOS](https://github.com/google/gnm/actions/workflows/ci-shape-macos.yml/badge.svg)](https://github.com/google/gnm/actions/workflows/ci-shape-macos.yml)<br>[![CI Windows](https://github.com/google/gnm/actions/workflows/ci-shape-windows.yml/badge.svg)](https://github.com/google/gnm/actions/workflows/ci-shape-windows.yml)<br>[![Lint](https://github.com/google/gnm/actions/workflows/lint.yml/badge.svg)](https://github.com/google/gnm/actions/workflows/lint.yml) | ![GNM Head Teaser](gnm/shape/assets/readme/teaser_heads_cropped.gif) ![GNM Head demo teaser](gnm/shape/assets/readme/gnm_head_demo.gif)  |
+<table>
+  <thead>
+    <tr>
+      <th align="left" width="110" nowrap>Name</th>
+      <th align="left">Description</th>
+      <th align="left" width="160" nowrap>Chips</th>
+      <th align="center" width="320" nowrap>Teaser</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left" width="110" nowrap>
+        <a href="gnm/shape/README.md"><strong>GNM Head</strong></a>
+      </td>
+      <td align="left">
+        Parametric 3D statistical human head and face geometry model providing fine-grained, disentangled control over identity, expressions, and head pose. The model contains controllable internal anatomy including eyeballs, teeth and tongue. Includes multi-framework backend support for <strong>NumPy</strong>, <strong>JAX</strong>, <strong>PyTorch</strong>, and <strong>TensorFlow</strong>, along with semantic parameter sampling.
+      </td>
+      <td align="left" width="160" nowrap>
+        <a href="https://github.com/google/gnm/actions/workflows/ci-shape-linux.yml"><img src="https://github.com/google/gnm/actions/workflows/ci-shape-linux.yml/badge.svg" alt="CI Linux" /></a><br>
+        <a href="https://github.com/google/gnm/actions/workflows/ci-shape-macos.yml"><img src="https://github.com/google/gnm/actions/workflows/ci-shape-macos.yml/badge.svg" alt="CI macOS" /></a><br>
+        <a href="https://github.com/google/gnm/actions/workflows/ci-shape-windows.yml"><img src="https://github.com/google/gnm/actions/workflows/ci-shape-windows.yml/badge.svg" alt="CI Windows" /></a><br>
+        <a href="https://github.com/google/gnm/actions/workflows/lint.yml"><img src="https://github.com/google/gnm/actions/workflows/lint.yml/badge.svg" alt="Lint" /></a>
+      </td>
+      <td align="center" width="320" nowrap>
+        <a href="gnm/shape/assets/readme/teaser_heads_cropped.gif"><img src="gnm/shape/assets/readme/teaser_heads_cropped.gif" alt="GNM Head Teaser" width="150" /></a>
+        <a href="gnm/shape/assets/readme/gnm_head_demo.gif"><img src="gnm/shape/assets/readme/gnm_head_demo.gif" alt="GNM Head demo teaser" width="150" /></a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## Citation
 If you use any part of the GNM Ecosystem in your work, please consider citing
