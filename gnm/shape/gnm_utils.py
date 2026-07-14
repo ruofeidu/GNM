@@ -49,9 +49,13 @@ _BASIS_BASIS_ATTRIBUTE_MAP = {
 _EXPRESSION_REGION_VERTEX_GROUP_MAP = {
     'left_eye': ['expression_basis_left_eye'],
     'right_eye': ['expression_basis_right_eye'],
-    'mouth': ['expression_basis_mouth_nose_ears', 'lower_teeth', 'tongue'],
+    'mouth': [
+        'expression_basis_mouth_nose_ears',
+        'lower_teeth_and_gums',
+        'tongue',
+    ],
     'tongue': ['tongue'],
-    'eyeballs': ['eyeball_interior'],
+    'eyeballs': ['eye_interiors'],
 }
 
 # Used to compute the identity components stddevs.

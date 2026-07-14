@@ -103,14 +103,14 @@ def get_joints_with_identity_thresholds(gnm_np: gnm_numpy.GNM):
 def get_group_subsets_test_cases():
   cases = []
   for version in _MAINTAINED_MAJOR_GNM_VERSIONS:
-    for group in ['skin', 'right_eye', 'lower_teeth']:
+    for group in ['skin', 'right_eye', 'lower_teeth_and_gums']:
       cases.append(dict(version=version, variant='head', group_name=group))
     for group in ['skin', 'head', 'right_hand']:
       cases.append(dict(version=version, variant='body', group_name=group))
   return cases
 
 
-def get_eyeball_test_cases():
+def get_eye_test_cases():
   cases = []
   for version in _MAINTAINED_MAJOR_GNM_VERSIONS:
     for variant in ['head', 'body']:
@@ -560,15 +560,15 @@ class GNMNumpyTest(parameterized.TestCase):
       ),
       side=['&left', '&right'],  # Note '&' for group intersection.
   )
-  def test_eyeball_interior_is_inside_exterior(
+  def test_eye_interiors_is_inside_exterior(
       self, version: str, variant: str, side: str
   ):
-    """Tests eyeball interior is inside exterior for template and identities."""
+    """Tests eye interior is inside exterior for template and identities."""
     if variant not in self.gnms[version]:
       self.skipTest(f'variant {variant} not supported in {version}.')
     gnm_np = self.gnms[version][variant]
-    interior_indices = gnm_np.vertex_group_indices('eyeball_interior', side)
-    exterior_triangles = gnm_np.triangles_group('eyeball_exterior', side)
+    interior_indices = gnm_np.vertex_group_indices('eye_interiors', side)
+    exterior_triangles = gnm_np.triangles_group('eye_exteriors', side)
 
     # Pose GNM vertices for template and several identity dimensions.
     dims_to_test = 3
@@ -615,16 +615,19 @@ class GNMNumpyTest(parameterized.TestCase):
       variant=tuple(
           v.value for v in _SUPPORTED_VARIANTS if 'hand' not in v.value
       ),
-      vertex_group=['left_pupil', 'right_pupil'],
+      vertex_groups=(
+          ('pupils', '&left'),
+          ('pupils', '&right'),
+      ),
   )
   def test_pupil_uvs_close_to_middle(
-      self, version: str, variant: str, vertex_group: str
+      self, version: str, variant: str, vertex_groups: Sequence[str]
   ):
     """Tests the pupil UV coordinates are close to (0.5, 0.5)."""
     if variant not in self.gnms[version]:
       self.skipTest(f'variant {variant} not supported in {version}.')
     gnm_np = self.gnms[version][variant]
-    uv = gnm_np.vertex_uvs_group(vertex_group)[0]
+    uv = np.mean(gnm_np.vertex_uvs_group(*vertex_groups), axis=0)
     self.assertLess(np.linalg.norm(uv - 0.5), 2e-3)
 
   @parameterized.product(
@@ -633,13 +636,13 @@ class GNMNumpyTest(parameterized.TestCase):
           v.value for v in _SUPPORTED_VARIANTS if 'hand' not in v.value
       ),
       side=['left', 'right'],
-      group=['eyeball_interior', 'eyeball_exterior'],
+      group=['eye_interiors', 'eye_exteriors'],
       axis=[0, 1],
   )
-  def test_eyeball_uvs_not_flipped(
+  def test_eye_uvs_not_flipped(
       self, version: str, variant: str, side: str, group: str, axis: int
   ):
-    """Checks that model-space axes align with UV axes for eyeballs."""
+    """Checks that model-space axes align with UV axes for eyes."""
     if variant not in self.gnms[version]:
       self.skipTest(f'variant {variant} not supported in {version}.')
     gnm_np = self.gnms[version][variant]
@@ -726,7 +729,7 @@ class GNMNumpyTest(parameterized.TestCase):
     # Compare two ways of combining both eyeballs fully.
     np.testing.assert_array_equal(
         gnm.vertex_group_indices('left_eye', 'right_eye'),
-        gnm.vertex_group_indices('eyeball_interior', 'eyeball_exterior'),
+        gnm.vertex_group_indices('eye_interiors', 'eye_exteriors'),
     )
 
     # Check trivial set operations.
@@ -741,7 +744,7 @@ class GNMNumpyTest(parameterized.TestCase):
     self.assertEmpty(gnm.vertex_group_indices('left_eye', '&right_eye'))
 
     # Exercise other vertex-group related functions with multiple groups.
-    groups = ('hockey_mask', 'left_ear', 'right_ear', '&left')
+    groups = ('hockey_mask', 'ears', '&left')
     gnm.quad_indices_for_group(*groups)
     gnm.triangle_indices_for_group(*groups)
     gnm.quads_group(*groups)

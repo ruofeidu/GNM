@@ -70,7 +70,11 @@ class VertexColorsTest(parameterized.TestCase):
       self.skipTest(f'variant {variant_name} not supported in {version}.')
     gnm_np = self.models[version][variant]
     colors = vertex_colors.get_vertex_colors_for_inner_head(gnm_np)
-    groups = [['mouth_sock'], ['upper_teeth'], ['lower_teeth', 'tongue']]
+    groups = (
+        ('mouth_sock',),
+        ('upper_teeth_and_gums',),
+        ('lower_teeth_and_gums', 'tongue'),
+    )
 
     with self.subTest('Correct shape'):
       self.assertEqual(colors.shape, (gnm_np.num_vertices, 3))

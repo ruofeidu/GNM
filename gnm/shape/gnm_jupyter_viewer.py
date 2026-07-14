@@ -36,10 +36,10 @@ class GNMMeshViewer:
     )
 
     # Prepare geometry data
-    self.triangles = self.gnm.triangles_group("all_but_eyeball_exterior")
+    self.triangles = self.gnm.triangles_group("~eye_exteriors")
     self.vertex_colors = _get_vertex_colors(gnm_np=self.gnm)
-    if "pupil" in self.gnm.vertex_group_names:
-      self.vertex_colors[self.gnm.vertex_group_indices("pupil")] = 0.0
+    if "pupils" in self.gnm.vertex_group_names:
+      self.vertex_colors[self.gnm.vertex_group_indices("pupils")] = 0.0
 
     self._init_html(
         width, height, fov, with_shadow, with_wireframe, parent_dom_id

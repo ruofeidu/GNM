@@ -470,7 +470,7 @@ class RenderGNMTest(parameterized.TestCase):
         **self.rendering_kwargs,
     )
 
-    eye_indices = gnm_np.vertex_group_indices('eyeball_interior')
+    eye_indices = gnm_np.vertex_group_indices('eye_interiors')
     proj_fn = (
         render_gnm.project_points_for_gnm  # pytype: disable=module-attr
     )

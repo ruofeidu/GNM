@@ -61,7 +61,7 @@ def render_gnm(
     world_to_camera: FloatArray | None = None,
     camera_to_image: FloatArray | None = None,
     image_size: tuple[int, int] = _DEFAULT_IMAGE_SIZE,
-    triangles: str | npt.NDArray[np.integer] = 'all_but_eyeball_exterior',
+    triangles: str | npt.NDArray[np.integer] = '~eye_exteriors',
     texture: Texture = DEFAULT_TEXTURE,
     multisample_antialiasing: int = 2,
     background_color: ColorOrImage = _DEFAULT_BACKGROUND_COLOR,
@@ -421,8 +421,8 @@ def get_look_at_world_to_camera(
     share_camera: np.ndarray | bool = True,
     y_up: np.ndarray | bool = False,
     look_at_vertex_groups: Sequence[str] = ('hockey_mask',),
-    left_vertex_groups: Sequence[str] = ('left_ear',),
-    right_vertex_groups: Sequence[str] = ('right_ear',),
+    left_vertex_groups: Sequence[str] = ('ears', '&left'),
+    right_vertex_groups: Sequence[str] = ('ears', '&right'),
     forward_vertex_groups: Sequence[str] = ('nose_region',),
 ) -> np.ndarray:
   """Compute world-to-camera matrices for a 'look-at' transform.

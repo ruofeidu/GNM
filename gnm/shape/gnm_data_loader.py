@@ -158,3 +158,52 @@ def _standardize_gnm_data_types(data: dict[str, Any]) -> dict[str, Any]:
     data[key] = [str(v) for v in data[key]]
 
   return data
+
+
+def _populate_legacy_vertex_group_aliases(data: dict[str, Any]) -> None:
+  """Populates standardized aliases for legacy vertex groups."""
+  if 'vertex_group_names' not in data or 'vertex_groups' not in data:
+    return
+
+  vertex_group_names_list = [str(v) for v in data['vertex_group_names']]
+  vertex_group_weights_array = np.array(data['vertex_groups'], dtype=np.float32)
+  if (
+      vertex_group_weights_array.ndim != 2
+      or len(vertex_group_names_list) != vertex_group_weights_array.shape[0]
+  ):
+    return
+
+  index_lookup = {name: i for i, name in enumerate(vertex_group_names_list)}
+  extra_group_names = []
+  extra_group_weights = []
+
+  # Mapping to retrieve new vertex group name by combinating legacy ones.
+  # Note that this list is not exhaustive, and mostly here to support the
+  # standard API calls in third_party/py/gnm.
+  vertex_group_mappings = {
+      'upper_teeth_and_gums': ('upper_teeth',),
+      'lower_teeth_and_gums': ('lower_teeth',),
+      'eyes': ('left_eye', 'right_eye'),
+      'eye_interiors': ('eyeball_interior',),
+      'eye_exteriors': ('eyeball_exterior',),
+      'scleras': ('sclera',),
+      'irises': ('iris',),
+      'pupils': ('pupil',),
+      'ears': ('left_ear', 'right_ear'),
+  }
+  for target_group_name, source_group_names in vertex_group_mappings.items():
+    if target_group_name not in index_lookup and all(
+        name in index_lookup for name in source_group_names
+    ):
+      source_weights_list = [
+          vertex_group_weights_array[index_lookup[name]]
+          for name in source_group_names
+      ]
+      extra_group_names.append(target_group_name)
+      extra_group_weights.append(np.maximum.reduce(source_weights_list))
+
+  if extra_group_names:
+    data['vertex_group_names'] = vertex_group_names_list + extra_group_names
+    data['vertex_groups'] = np.concatenate(
+        (vertex_group_weights_array, np.stack(extra_group_weights)), axis=0
+    )

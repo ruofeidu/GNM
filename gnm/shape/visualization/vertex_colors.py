@@ -29,8 +29,8 @@ CYAN = tuple([c / 255 for c in [39, 227, 227]])
 # a tuple of modifiers that scales and adds an offset to the given color value.
 _VERTEX_GROUP_COLOR_MODIFIERS = {
     'skin': (1.0, 0.0),
-    'sclera': (0.6, 0.4),
-    'iris': (0.6, 0.0),
+    'scleras': (0.6, 0.4),
+    'irises': (0.6, 0.0),
     'gums': (0.7, 0.0),
     'teeth': (0.6, 0.4),
     'tongue': (0.7, 0.0),
@@ -84,12 +84,17 @@ def get_vertex_colors_for_inner_head(
     ValueError: The GNM model does not include a head.
   """
   # The function only makes sense for GNM models includling a head.
-  colored_groups = ['mouth_sock', 'upper_teeth', 'lower_teeth', 'tongue']
+  colored_groups = [
+      'mouth_sock',
+      'upper_teeth_and_gums',
+      'lower_teeth_and_gums',
+      'tongue',
+  ]
   if not np.all([g in gnm_np.vertex_group_names for g in colored_groups]):
     raise ValueError('The GNM model does not include a head.')
 
   colors = get_vertex_colors(color=base_color, gnm_np=gnm_np)
   colors[gnm_np.vertex_group_indices('mouth_sock')] = ORANGE
-  colors[gnm_np.vertex_group_indices('upper_teeth')] = GREEN
-  colors[gnm_np.vertex_group_indices('lower_teeth', 'tongue')] = CYAN
+  colors[gnm_np.vertex_group_indices('upper_teeth_and_gums')] = GREEN
+  colors[gnm_np.vertex_group_indices('lower_teeth_and_gums', 'tongue')] = CYAN
   return colors
