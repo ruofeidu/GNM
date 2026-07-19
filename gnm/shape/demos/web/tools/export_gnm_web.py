@@ -127,7 +127,7 @@ def load_keras_mlp(path):
 
 
 def run_mlp(layers, x):
-  for i, layer in enumerate(layers):
+  for layer in layers:
     x = x @ layer['kernel'] + layer['bias']
     if layer['activation'] == 'relu':
       x = np.maximum(x, 0.0)
